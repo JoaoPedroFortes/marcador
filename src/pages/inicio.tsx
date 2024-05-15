@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { PencilIcon, XMarkIcon, PlusCircleIcon } from '@heroicons/react/24/outline'
 import Link from "next/link";
 import HeaderComponent from '@/components/shared/header';
@@ -7,7 +7,7 @@ import { ProcessedEvent, SchedulerHelpers, Translations } from '@aldabil/react-s
 import PADRAO_BRASILEIRO from '@/utils/traducao-agenda';
 import { DayProps } from '@aldabil/react-scheduler/views/Day';
 import AdicionarAgendamento from './agendamento/adicionar';
-
+import type { SchedulerRef } from "@aldabil/react-scheduler/types"
 type User = {
     name?: string
     email?: string,
@@ -18,7 +18,7 @@ const dayProps: DayProps = {
     startHour: 9,
     endHour: 22,
     step: 40,
-    navigation: true 
+    navigation: true
 }
 const eventDisabled: ProcessedEvent = {
     event_id: 0,
@@ -28,13 +28,13 @@ const eventDisabled: ProcessedEvent = {
     disabled: true
 }
 
-const getSaudacao = ()=>{
+const getSaudacao = () => {
     const now = new Date();
     const hours = now.getHours();
 
-    if(hours >= 12 && hours <18) {
+    if (hours >= 12 && hours < 18) {
         return 'Boa tarde';
-    }else if(hours >= 18 || hours <5){
+    } else if (hours >= 18 || hours < 5) {
         return 'Boa noite'
     }
     return 'Bom dia'
@@ -48,14 +48,18 @@ export default function Inicio() {
     const [saudacao, setSaudacao] = useState<String>("Bom dia");
     const [events, setEvents] = useState([eventDisabled]);
 
+    const calendarRef = useRef<SchedulerRef>(null);
+
+
     useEffect(() => {
+
 
         setSaudacao(getSaudacao());
 
         const cookieUser = localStorage.getItem('cookieUser')
         if (cookieUser) setUsuarioLogado(JSON.parse(cookieUser));
-       
-       
+
+
         const listaServicoCookie = localStorage.getItem('listaServicoCookie')
         if (!listaServicoCookie) {
             const listaServico = [
@@ -63,18 +67,19 @@ export default function Inicio() {
                 { nome: 'Barba', valor: 40.00 },
                 { nome: 'Combo 1', descricao: 'Cabelo + Barba', valor: 60.00 },
                 { nome: 'Sobrancelha', valor: 10 },
-              ];
+            ];
             localStorage.setItem('listaServicoCookie', JSON.stringify(listaServico)
-        )}
+            )
+        }
 
 
         const listaAgendaCookie = localStorage.getItem('listaAgendaCookie');
         let listaAgenda = []
-        if(listaAgendaCookie) {listaAgenda = JSON.parse(listaAgendaCookie)}
+        if (listaAgendaCookie) { listaAgenda = JSON.parse(listaAgendaCookie) }
 
-        const listaEvent:any = []
-        listaAgenda.forEach((agenda:any) => {
-            const event = {...agenda}
+        const listaEvent: any = []
+        listaAgenda.forEach((agenda: any) => {
+            const event = { ...agenda }
             event.start = new Date(event.start)
             event.end = new Date(event.end)
             listaEvent.push(event);
@@ -82,7 +87,11 @@ export default function Inicio() {
 
         setEvents(listaEvent);
 
-      
+
+
+        calendarRef.current?.el.classList.add('overflow-x-auto')
+        calendarRef.current?.el.children[1].classList.add('overflow-x-auto')
+    
 
 
     }, [])
@@ -95,7 +104,7 @@ export default function Inicio() {
                         <h1>{saudacao}, {usuarioLogado.name}</h1>
                     </div>
                     <div className="w-full lg:w-6/12">
-                        <Scheduler customEditor={(scheduler) => <AdicionarAgendamento scheduler={scheduler} isModal={true} />}translations={PADRAO_BRASILEIRO} day={dayProps} selectedDate={new Date()}  stickyNavigation={true} events={events} hourFormat={"24"} timeZone="America/Sao_Paulo" view="day" ></Scheduler>
+                        <Scheduler ref={calendarRef} customEditor={(scheduler) => <AdicionarAgendamento scheduler={scheduler} isModal={true} />} translations={PADRAO_BRASILEIRO} day={dayProps} selectedDate={new Date()} stickyNavigation={true} events={events} hourFormat={"24"} timeZone="America/Sao_Paulo" view="day" ></Scheduler>
                     </div>
 
                 </div>

@@ -31,7 +31,7 @@ export default function Agendamento() {
                     <div className="flex justify-end lg:mr-10">
                         <Link href={"/agendamento/adicionar"}>
                             <button
-                                className="mr-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                                className="mr-4 btn-primary text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                             >
                                 Adicionar
                             </button>

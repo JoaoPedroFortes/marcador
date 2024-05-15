@@ -6,7 +6,8 @@ import { formatISO } from 'date-fns';
 
 import { SchedulerHelpers } from '@aldabil/react-scheduler/types';
 import Calendario from '@/components/shared/util/Calendario';
-
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface CustomEditorProps {
     scheduler: SchedulerHelpers;
@@ -149,6 +150,7 @@ const AdicionarAgendamento = (props?: AgendamentoProps) => {
             addObjCookie(objToCache)
         }
 
+        toast.success('Cadastro realizado com sucesso!');
         scheduler?.close()
     };
 
@@ -395,7 +397,7 @@ const AdicionarAgendamento = (props?: AgendamentoProps) => {
                                     </Link>
                                     )}
                                 <button
-                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                                    className="btn-primary text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                                     type="submit"
                                 >
                                     Cadastrar
