@@ -60,37 +60,37 @@ export default function Inicio() {
         if (cookieUser) setUsuarioLogado(JSON.parse(cookieUser));
 
 
-        const listaServicoCookie = localStorage.getItem('listaServicoCookie')
-        if (!listaServicoCookie) {
-            const listaServico = [
-                { nome: 'Cabelo', valor: 30.00 },
-                { nome: 'Barba', valor: 40.00 },
-                { nome: 'Combo 1', descricao: 'Cabelo + Barba', valor: 60.00 },
-                { nome: 'Sobrancelha', valor: 10 },
-            ];
-            localStorage.setItem('listaServicoCookie', JSON.stringify(listaServico)
-            )
-        }
+        // const listaServicoCookie = localStorage.getItem('listaServicoCookie')
+        // if (!listaServicoCookie) {
+        //     const listaServico = [
+        //         { nome: 'Cabelo', valor: 30.00 },
+        //         { nome: 'Barba', valor: 40.00 },
+        //         { nome: 'Combo 1', descricao: 'Cabelo + Barba', valor: 60.00 },
+        //         { nome: 'Sobrancelha', valor: 10 },
+        //     ];
+        //     localStorage.setItem('listaServicoCookie', JSON.stringify(listaServico)
+        //     )
+        // }
 
 
-        const listaAgendaCookie = localStorage.getItem('listaAgendaCookie');
-        let listaAgenda = []
-        if (listaAgendaCookie) { listaAgenda = JSON.parse(listaAgendaCookie) }
+        // const listaAgendaCookie = localStorage.getItem('listaAgendaCookie');
+        // let listaAgenda = []
+        // if (listaAgendaCookie) { listaAgenda = JSON.parse(listaAgendaCookie) }
 
-        const listaEvent: any = []
-        listaAgenda.forEach((agenda: any) => {
-            const event = { ...agenda }
-            event.start = new Date(event.start)
-            event.end = new Date(event.end)
-            listaEvent.push(event);
-        });
+        // const listaEvent: any = []
+        // listaAgenda.forEach((agenda: any) => {
+        //     const event = { ...agenda }
+        //     event.start = new Date(event.start)
+        //     event.end = new Date(event.end)
+        //     listaEvent.push(event);
+        // });
 
-        setEvents(listaEvent);
+        // setEvents(listaEvent);
 
 
 
-        calendarRef.current?.el.classList.add('overflow-x-auto')
-        calendarRef.current?.el.children[1].classList.add('overflow-x-auto')
+        // calendarRef.current?.el.classList.add('overflow-x-auto')
+        // calendarRef.current?.el.children[1].classList.add('overflow-x-auto')
     
 
 

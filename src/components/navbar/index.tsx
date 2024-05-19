@@ -4,6 +4,7 @@ import { Fragment, useEffect } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
+import {removeLoggedUser} from '@/utils/cookie/cookie'
 const inter = Inter({ subsets: ['latin'] })
 
 const user = {
@@ -18,10 +19,14 @@ const navigation = [
   { name: 'Serviços', href: '/servico', current: false },
   { name: 'Relatórios', href: '/relatorio', current: false },
 ]
+
+const logout = ()=>{
+  removeLoggedUser();
+}
 const userNavigation = [
   { name: 'Perfil', href: '#' },
   { name: 'Configuraçoes', href: '#' },
-  { name: 'Sair', href: '/login' },
+  { name: 'Sair', onClick: logout, href: '/login' },
 ]
 
 function classNames(...classes) {
@@ -113,6 +118,7 @@ export default function Home({ children }) {
                               <Menu.Item key={item.name}>
                                 {({ active }) => (
                                   <a
+                                    onClick={item.onClick}
                                     href={item.href}
                                     className={classNames(
                                       active ? 'bg-gray-100' : '',
@@ -188,6 +194,7 @@ export default function Home({ children }) {
                       <Disclosure.Button
                         key={item.name}
                         as="a"
+                        onClick={item.onClick}
                         href={item.href}
                         className="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
                       >
