@@ -7,8 +7,8 @@ import { SchedulerHelpers } from '@aldabil/react-scheduler/types';
 
 interface CustomEditorProps {
     scheduler: SchedulerHelpers;
-  }
-  
+}
+
 export default function Agendamento() {
 
 
@@ -21,22 +21,18 @@ export default function Agendamento() {
 
                     </div>
                     <div className="container" suppressHydrationWarning >
-                        
+
                     </div>
 
                 </div>
-            
+
                 <div className="fixed bottom-5 w-full">
 
-                    <div className="flex justify-end lg:mr-10">
-                        <Link href={"/agendamento/adicionar"}>
-                            <button
-                                className="mr-4 btn-primary text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                            >
-                                Adicionar
-                            </button>
+                    <div className="flex justify-end  lg:mr-10">
 
-                        </Link>
+                        <a className="btn-primary text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                            href={"/agendamento/adicionar"}> Adicionar
+                        </a>
 
                     </div>
                 </div>

@@ -25,7 +25,7 @@ const logout = ()=>{
 }
 const userNavigation = [
   { name: 'Perfil', href: '#' },
-  { name: 'Configuraçoes', href: '#' },
+  { name: 'Configuraçoes', href: '/configuracao' },
   { name: 'Sair', onClick: logout, href: '/login' },
 ]
 

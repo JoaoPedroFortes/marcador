@@ -8,6 +8,8 @@ import { SchedulerHelpers } from '@aldabil/react-scheduler/types';
 import Calendario from '@/components/shared/util/Calendario';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getLoggedUser } from '@/utils/cookie/cookie';
+import { httpGET } from '@/utils/service/api-service';
 
 interface CustomEditorProps {
     scheduler: SchedulerHelpers;
@@ -19,6 +21,10 @@ interface AgendamentoProps extends CustomEditorProps {
 
 const AdicionarAgendamento = (props?: AgendamentoProps) => {
 
+    const [accessToken, setAccessToken] = useState('');
+    const [url, setUrl] = useState('');
+
+    
     const scheduler = props?.scheduler;
     const [isModal, setIsModal] = useState(false);
 
@@ -36,7 +42,7 @@ const AdicionarAgendamento = (props?: AgendamentoProps) => {
     const [dateTime, setDateTime] = useState('');
     const [diaSemanaRecorrente, setDiaSemanaRecorrente] = useState('');
     const [horaRecorrente, setHoraRecorrente] = useState('');
-    const [dataRecorrenteAPartir, setDataRecorrenteAPartir] = useState<Date|undefined>(undefined);
+    const [dataRecorrenteAPartir, setDataRecorrenteAPartir] = useState<Date | undefined>(undefined);
 
 
     /**
@@ -79,34 +85,27 @@ const AdicionarAgendamento = (props?: AgendamentoProps) => {
 
 
     const addObjCookie = (objToCache) => {
-        let cookieListaAgenda = localStorage.getItem('listaAgendaCookie');
-        let listaAgenda = []
-        if (cookieListaAgenda) {
-            listaAgenda = JSON.parse(cookieListaAgenda);
-        }
-        listaAgenda.push(objToCache)
-        cookieListaAgenda = JSON.stringify(listaAgenda);
-        localStorage.setItem('listaAgendaCookie', cookieListaAgenda);
+
     }
 
     const createObjetoRecorrente = () => {
         if (tipoAgendamento != 'R') return;
-        if(!dataRecorrenteAPartir) return
+        if (!dataRecorrenteAPartir) return
 
         let limite = tipoFrequencia === 'Q' ? 24 : 12;
         let dataInicio: Date | undefined = dataRecorrenteAPartir;
-        dataInicio?.setHours(+horaRecorrente.substring(0,2))
-        dataInicio?.setMinutes(+horaRecorrente.substring(3,5))
+        dataInicio?.setHours(+horaRecorrente.substring(0, 2))
+        dataInicio?.setMinutes(+horaRecorrente.substring(3, 5))
         // dataInicio?.setTime(new Date(horaRecorrente))
         for (let i = 0; i < limite; i++) {
-            const dataFim = new Date(JSON.parse(JSON.stringify(dataInicio))) || new Date() 
+            const dataFim = new Date(JSON.parse(JSON.stringify(dataInicio))) || new Date()
             dataFim.setMinutes(dataFim.getMinutes() + 40)
 
 
             let start = formatISO(dataInicio);
-            start = start.slice(0,16)
+            start = start.slice(0, 16)
             let end = formatISO(dataFim)
-            end = end.slice(0,16)
+            end = end.slice(0, 16)
 
             const objToCache = {
                 title: nome,
@@ -116,7 +115,7 @@ const AdicionarAgendamento = (props?: AgendamentoProps) => {
 
             addObjCookie(objToCache);
             const diasProximoAgendamento = limite === 12 ? 29 : 14;
-            dataInicio?.setDate(dataInicio.getDate() + diasProximoAgendamento );
+            dataInicio?.setDate(dataInicio.getDate() + diasProximoAgendamento);
         }
 
     }
@@ -133,19 +132,19 @@ const AdicionarAgendamento = (props?: AgendamentoProps) => {
         event.preventDefault();
         console.log('Dados do formulário:', { nome, celular, email, tipoAgendamento, selectedServico });
 
-        if(tipoAgendamento === 'R'){
+        if (tipoAgendamento === 'R') {
             createObjetoRecorrente()
-        }else{
+        } else {
 
             const dataatual = new Date(dateTime)
             dataatual.setMinutes(dataatual.getMinutes() + 40)
-           
+
             const objToCache = {
                 title: nome,
                 start: dateTime,
                 end: dataatual.toISOString()
             };
-    
+
             console.log(objToCache)
             addObjCookie(objToCache)
         }
@@ -158,11 +157,18 @@ const AdicionarAgendamento = (props?: AgendamentoProps) => {
         scheduler?.close();
     }
     useEffect(() => {
-        console.log(props)
+       
+        const url = process.env.NEXT_PUBLIC_FIREBASE_FUNCTION_API;
+        setUrl(url + "/servico")
+
+        const loggedUser = getLoggedUser();
+        setAccessToken(loggedUser?.accessToken);
+
         if (props?.isModal) {
             setIsModal(true)
             setTipoAgendamento("U");
         }
+
         const listaServicoCookie = localStorage.getItem('listaServicoCookie');
         if (listaServicoCookie) {
             setListaServicoCookie(JSON.parse(listaServicoCookie));
@@ -176,6 +182,23 @@ const AdicionarAgendamento = (props?: AgendamentoProps) => {
 
         }
     }, [])
+
+    useEffect(() => {
+        
+        if(!url) return;
+        if(!accessToken) return;
+
+        const callback = (response: any) => {
+            setListaServicoCookie(response)
+        }
+
+        const callbackError = (error: any) => {
+            toast.error(`Ocorreu um erro ao recuperar a lista de serviços: , ${error}`);
+        }
+
+        const props = { url, token: accessToken, callback, callbackError };
+        httpGET(props);
+    }, [!!url, !!accessToken])
 
     return (
 
@@ -373,7 +396,7 @@ const AdicionarAgendamento = (props?: AgendamentoProps) => {
 
                         <div className="w-full">
 
-                            <div className="flex justify-end lg:mr-10">
+                            <div className="w-full flex justify-end lg:mr-10 multi-btn">
 
                                 {isModal ? (
                                     <button
@@ -386,16 +409,16 @@ const AdicionarAgendamento = (props?: AgendamentoProps) => {
 
                                 )
                                     :
-                                    (<Link href={"/agendamento"}>
-                                        <button
-
+                                    (
+                                        <a
+                                            href={"/agendamento"}
                                             className="mr-4 bg-gray-700 hover:bg-gray-300 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                                         >
                                             Voltar
-                                        </button>
+                                        </a>
 
-                                    </Link>
                                     )}
+
                                 <button
                                     className="btn-primary text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                                     type="submit"

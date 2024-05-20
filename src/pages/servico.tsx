@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { PencilIcon, XMarkIcon, PlusCircleIcon } from '@heroicons/react/24/outline'
 import Link from "next/link";
 import HeaderComponent from '@/components/shared/header';
+import { getLoggedUser } from '@/utils/cookie/cookie';
+import { httpGET } from '@/utils/service/api-service';
+import { toast } from 'react-toastify';
 
 type IServico = {
     nome: string;
@@ -13,23 +16,36 @@ type IServico = {
 
 export default function Servico() {
 
+    const [accessToken, setAccessToken] = useState('');
+    const [url, setUrl] = useState('');
+
     const [listaServico, setListaServico] = useState([{
         nome: '',
         descricao: '',
         valor: 0
     }])
 
+
     useEffect(() => {
-        async function fetchAPI() {
-            let data = undefined;
-            const listaServicoCookie = localStorage.getItem('listaServicoCookie');
-            if(listaServicoCookie){
-                data = JSON.parse(listaServicoCookie);
-            }
-            setListaServico(data);
+        const url = process.env.NEXT_PUBLIC_FIREBASE_FUNCTION_API;
+        setUrl(url + "/servico")
+
+        const loggedUser = getLoggedUser();
+        setAccessToken(loggedUser?.accessToken);
+
+    }, [])
+
+    useEffect(() => {
+
+        const callback = (response: any) => {
+            setListaServico(response)
         }
-        fetchAPI();
-    }, []);
+
+        const callbackError = (error: any) => {
+            toast.error(`Ocorreu um erro ao recuperar a lista: , ${error}`);
+        }
+        httpGET({ url, token: accessToken, callback, callbackError });
+    }, [!!url, !!accessToken])
 
     return (
         <>
@@ -60,7 +76,7 @@ export default function Servico() {
                             </thead>
 
                             <tbody>
-                                {listaServico.map((servico, index) => (
+                                {listaServico?.map((servico, index) => (
                                     <tr key={index}>
                                         <td>{servico.nome}</td>
                                         <td>{servico.descricao ? servico.descricao : '-'}</td>
@@ -76,25 +92,16 @@ export default function Servico() {
                     </div>
 
                 </div>
-                {/* <button className='fixed right-11 bottom-5' title='Novo Serviço'>
-                    <Link href="/servico/adicionar">
-                    <PlusCircleIcon className="block h-10 w-10"></PlusCircleIcon>
-                    </Link>
-                </button> */}
 
 
-                <div className="fixed bottom-5 w-full">
+                <div className="w-full">
 
                     <div className="flex justify-end lg:mr-10">
-                        <Link href={"/servico/adicionar"}>
-                            <button
-                                className="mr-4 btn-primary text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                            >
-                                Adicionar
-                            </button>
 
-                        </Link>
-
+                        <a href={"/servico/adicionar"}
+                            className="mr-4 btn-primary text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                            Adicionar
+                        </a>
                     </div>
                 </div>
             </main>
